@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
@@ -18,11 +18,7 @@ export function QRMeetup({ userId }: QRMeetupProps) {
   const [showScanner, setShowScanner] = useState(false)
   const [showMeetupForm, setShowMeetupForm] = useState(false)
 
-  useEffect(() => {
-    loadUserData()
-  }, [])
-
-  const loadUserData = async () => {
+  const loadUserData = useCallback(async () => {
     try {
       const user = await blink.auth.me()
       if (!user) return
@@ -46,12 +42,16 @@ export function QRMeetup({ userId }: QRMeetupProps) {
     } catch (error) {
       console.error('Error loading user data:', error)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    loadUserData()
+  }, [loadUserData])
 
   const handleQRScan = async (scannedData: string) => {
     try {
       // Parse QR code data
-      const match = scannedData.match(/skillbridge:\/\/meet\/([^\/]+)\/(\d+)/)
+      const match = scannedData.match(/skillbridge:\/\/meet\/([^/]+)\/(\d+)/)
       if (!match) {
         alert('Invalid QR code')
         return

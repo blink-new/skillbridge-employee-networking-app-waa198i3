@@ -21,6 +21,9 @@ import { SkillSwap } from '@/components/gamification/SkillSwap'
 import { ConversationStarters } from '@/components/gamification/ConversationStarters'
 import { TeamLeaderboard } from '@/components/gamification/TeamLeaderboard'
 import { MonthlyGroups } from '@/components/gamification/MonthlyGroups'
+import { MatchingSuggestions } from '@/components/ai/MatchingSuggestions'
+import { NotificationCenter } from '@/components/notifications/NotificationCenter'
+import { LearningSessions } from '@/components/learning/LearningSessions'
 
 interface DashboardProps {
   user: any
@@ -230,6 +233,16 @@ const Dashboard = ({ user, userProfile }: DashboardProps) => {
       {/* Team Leaderboard */}
       <div className="mb-8">
         <TeamLeaderboard userProfile={userProfile} />
+      </div>
+
+      {/* AI-Powered Features */}
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">🤖 AI-Powered Networking</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <MatchingSuggestions />
+          <NotificationCenter />
+        </div>
+        <LearningSessions />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

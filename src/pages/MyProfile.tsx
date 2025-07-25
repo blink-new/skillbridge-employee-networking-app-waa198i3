@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
 import { Edit, Award, Users, BookOpen, Target, Sparkles } from 'lucide-react'
 import blink from '@/blink/client'
+import { SkillEndorsements } from '@/components/skills/SkillEndorsements'
 
 interface MyProfileProps {
   user: any
@@ -284,6 +285,11 @@ const MyProfile = ({ user, userProfile }: MyProfileProps) => {
             )}
           </CardContent>
         </Card>
+      </div>
+
+      {/* Skill Endorsements */}
+      <div className="mt-8">
+        <SkillEndorsements userId={user?.id} isOwnProfile={true} />
       </div>
     </div>
   )
