@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Toaster } from '@/components/ui/toaster'
-import { GlassCard } from '@/components/ui/glass-card'
-import blink from '@/blink/client'
-import Dashboard from '@/pages/Dashboard'
-import ProfileSetup from '@/pages/ProfileSetup'
-import DiscoverConnections from '@/pages/DiscoverConnections'
-import MyProfile from '@/pages/MyProfile'
-import Connections from '@/pages/Connections'
-import CommunityGroups from '@/pages/CommunityGroups'
-import Navigation from '@/components/Navigation'
-import LoadingScreen from '@/components/LoadingScreen'
+import { Toaster } from './components/ui/toaster'
+import { GlassCard } from './components/ui/glass-card'
+import { blink } from './blink/client'
+import { Dashboard } from './pages/Dashboard'
+import { ProfileSetup } from './pages/ProfileSetup'
+import { DiscoverConnections } from './pages/DiscoverConnections'
+import { MyProfile } from './pages/MyProfile'
+import { Connections } from './pages/Connections'
+import { CommunityGroups } from './pages/CommunityGroups'
+import { Navigation } from './components/Navigation'
+import { LoadingScreen } from './components/LoadingScreen'
 
 type Page = 'dashboard' | 'profile-setup' | 'discover' | 'my-profile' | 'connections' | 'groups'
 
@@ -101,17 +101,17 @@ function App() {
   const renderPage = () => {
     switch (currentPage) {
       case 'profile-setup':
-        return <ProfileSetup user={user} onComplete={() => setCurrentPage('dashboard')} />
+        return <ProfileSetup onComplete={() => setCurrentPage('dashboard')} />
       case 'discover':
-        return <DiscoverConnections user={user} />
+        return <DiscoverConnections />
       case 'my-profile':
-        return <MyProfile user={user} userProfile={userProfile} />
+        return <MyProfile />
       case 'connections':
-        return <Connections user={user} />
+        return <Connections />
       case 'groups':
-        return <CommunityGroups user={user} />
+        return <CommunityGroups />
       default:
-        return <Dashboard user={user} userProfile={userProfile} />
+        return <Dashboard />
     }
   }
 
@@ -120,8 +120,6 @@ function App() {
       <Navigation 
         currentPage={currentPage} 
         onPageChange={setCurrentPage}
-        user={user}
-        userProfile={userProfile}
       />
       <main className="pt-16">
         <AnimatePresence mode="wait">

@@ -1,26 +1,52 @@
 import { motion } from 'framer-motion'
 import { Home, Search, User, Users, Building2, LogOut } from 'lucide-react'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
+import { Button } from './ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import blink from '@/blink/client'
+} from './ui/dropdown-menu'
+import { blink } from '../blink/client'
+import { useState, useEffect } from 'react'
 
 type Page = 'dashboard' | 'profile-setup' | 'discover' | 'my-profile' | 'connections' | 'groups'
 
 interface NavigationProps {
   currentPage: Page
   onPageChange: (page: Page) => void
-  user: any
-  userProfile: any
 }
 
-const Navigation = ({ currentPage, onPageChange, user, userProfile }: NavigationProps) => {
+export function Navigation({ currentPage, onPageChange }: NavigationProps) {
+  const [user, setUser] = useState<any>(null)
+  const [userProfile, setUserProfile] = useState<any>(null)
+
+  useEffect(() => {
+    const loadUserData = async () => {
+      try {
+        const currentUser = await blink.auth.me()
+        if (currentUser) {
+          setUser(currentUser)
+          
+          // Load user profile
+          const profiles = await blink.db.userProfiles.list({
+            where: { user_id: currentUser.id },
+            limit: 1
+          })
+          
+          if (profiles.length > 0) {
+            setUserProfile(profiles[0])
+          }
+        }
+      } catch (error) {
+        console.error('Error loading user data:', error)
+      }
+    }
+
+    loadUserData()
+  }, [])
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: Home },
     { id: 'discover', label: 'Discover', icon: Search },
@@ -168,5 +194,3 @@ const Navigation = ({ currentPage, onPageChange, user, userProfile }: Navigation
     </motion.nav>
   )
 }
-
-export default Navigation

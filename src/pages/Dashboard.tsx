@@ -1,13 +1,13 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Progress } from '@/components/ui/progress'
-import { GlassCard } from '@/components/ui/glass-card'
-import { AnimatedPage } from '@/components/ui/animated-page'
-import blink from '@/blink/client'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
+import { Badge } from '../components/ui/badge'
+import { Button } from '../components/ui/button'
+import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
+import { Progress } from '../components/ui/progress'
+import { GlassCard } from '../components/ui/glass-card'
+import { AnimatedPage } from '../components/ui/animated-page'
+import { blink } from '../blink/client'
 import { 
   Users, 
   TrendingUp, 
@@ -18,22 +18,17 @@ import {
   Target,
   BookOpen
 } from 'lucide-react'
-import { StreakCounter } from '@/components/gamification/StreakCounter'
-import { QRMeetup } from '@/components/gamification/QRMeetup'
-import { SkillSwap } from '@/components/gamification/SkillSwap'
-import { ConversationStarters } from '@/components/gamification/ConversationStarters'
-import { TeamLeaderboard } from '@/components/gamification/TeamLeaderboard'
-import { MonthlyGroups } from '@/components/gamification/MonthlyGroups'
-import { MatchingSuggestions } from '@/components/ai/MatchingSuggestions'
-import { NotificationCenter } from '@/components/notifications/NotificationCenter'
-import { LearningSessions } from '@/components/learning/LearningSessions'
+import { StreakCounter } from '../components/gamification/StreakCounter'
+import { QRMeetup } from '../components/gamification/QRMeetup'
+import { SkillSwap } from '../components/gamification/SkillSwap'
+import { ConversationStarters } from '../components/gamification/ConversationStarters'
+import { TeamLeaderboard } from '../components/gamification/TeamLeaderboard'
+import { MonthlyGroups } from '../components/gamification/MonthlyGroups'
+import { MatchingSuggestions } from '../components/ai/MatchingSuggestions'
+import { NotificationCenter } from '../components/notifications/NotificationCenter'
+import { LearningSessions } from '../components/learning/LearningSessions'
 
-interface DashboardProps {
-  user: any
-  userProfile: any
-}
-
-const Dashboard = ({ user, userProfile }: DashboardProps) => {
+export function Dashboard() {
   const [stats, setStats] = useState({
     connections: 0,
     badges: 0,
@@ -43,31 +38,44 @@ const Dashboard = ({ user, userProfile }: DashboardProps) => {
   const [suggestedConnections, setSuggestedConnections] = useState<any[]>([])
   const [userBadges, setUserBadges] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState<any>(null)
+  const [userProfile, setUserProfile] = useState<any>(null)
 
   const loadDashboardData = useCallback(async () => {
-    if (!user) return
-
     try {
+      const currentUser = await blink.auth.me()
+      if (!currentUser) return
+      setUser(currentUser)
+
+      // Load user profile
+      const profiles = await blink.db.userProfiles.list({
+        where: { user_id: currentUser.id },
+        limit: 1
+      })
+      
+      const profile = profiles.length > 0 ? profiles[0] : null
+      setUserProfile(profile)
+
       // Load user connections
       const connections = await blink.db.connections.list({
         where: {
           OR: [
-            { requesterId: user.id, status: 'accepted' },
-            { recipientId: user.id, status: 'accepted' }
+            { requester_id: currentUser.id, status: 'accepted' },
+            { target_id: currentUser.id, status: 'accepted' }
           ]
         }
       })
 
       // Load user badges
       const badges = await blink.db.userBadges.list({
-        where: { userId: user.id }
+        where: { user_id: currentUser.id }
       })
 
       // Load badge details
       const badgeDetails = []
       for (const userBadge of badges) {
         const badge = await blink.db.badges.list({
-          where: { id: userBadge.badgeId },
+          where: { id: userBadge.badge_id },
           limit: 1
         })
         if (badge.length > 0) {
@@ -78,8 +86,8 @@ const Dashboard = ({ user, userProfile }: DashboardProps) => {
       // Calculate profile completion
       let completionScore = 0
       const fields = [
-        userProfile?.name, userProfile?.role, userProfile?.microBio,
-        userProfile?.superpower, userProfile?.learningNow, userProfile?.askMeAbout
+        profile?.name, profile?.role, profile?.micro_bio,
+        profile?.superpower, profile?.learning_now, profile?.ask_me_about
       ]
       completionScore = (fields.filter(Boolean).length / fields.length) * 100
 
@@ -93,7 +101,7 @@ const Dashboard = ({ user, userProfile }: DashboardProps) => {
 
       // Load suggested connections (simplified for now)
       const allProfiles = await blink.db.userProfiles.list({
-        where: { NOT: { userId: user.id } },
+        where: { NOT: { user_id: currentUser.id } },
         limit: 3
       })
       setSuggestedConnections(allProfiles)
@@ -103,24 +111,11 @@ const Dashboard = ({ user, userProfile }: DashboardProps) => {
     } finally {
       setLoading(false)
     }
-  }, [user, userProfile])
+  }, [])
 
   const refreshPoints = async () => {
-    // Refresh user profile to get updated points
-    if (!user) return
-    try {
-      const updatedProfile = await blink.db.userProfiles.list({
-        where: { id: user.id },
-        limit: 1
-      })
-      if (updatedProfile.length > 0) {
-        // Update the userProfile in parent component would be ideal
-        // For now, we'll just trigger a reload of dashboard data
-        loadDashboardData()
-      }
-    } catch (error) {
-      console.error('Error refreshing points:', error)
-    }
+    // Refresh dashboard data to get updated points
+    loadDashboardData()
   }
 
   useEffect(() => {
@@ -459,5 +454,3 @@ const Dashboard = ({ user, userProfile }: DashboardProps) => {
     </AnimatedPage>
   )
 }
-
-export default Dashboard

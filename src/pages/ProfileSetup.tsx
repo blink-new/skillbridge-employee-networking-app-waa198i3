@@ -1,17 +1,19 @@
 import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Checkbox } from '@/components/ui/checkbox'
-import { useToast } from '@/hooks/use-toast'
-import blink from '@/blink/client'
-import { Sparkles, Plus, X } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { Button } from '../components/ui/button'
+import { Input } from '../components/ui/input'
+import { Label } from '../components/ui/label'
+import { Textarea } from '../components/ui/textarea'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
+import { Badge } from '../components/ui/badge'
+import { Checkbox } from '../components/ui/checkbox'
+import { GlassCard } from '../components/ui/glass-card'
+import { AnimatedPage } from '../components/ui/animated-page'
+import { useToast } from '../hooks/use-toast'
+import { blink } from '../blink/client'
+import { Sparkles, Plus, X, User, Briefcase, Target, Lightbulb } from 'lucide-react'
 
 interface ProfileSetupProps {
-  user: any
   onComplete: () => void
 }
 
@@ -21,7 +23,7 @@ const workingStyles = [
   'Hands-on', 'Strategic', 'Flexible', 'Structured'
 ]
 
-const ProfileSetup = ({ user, onComplete }: ProfileSetupProps) => {
+export function ProfileSetup({ onComplete }: ProfileSetupProps) {
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
   const [skills, setSkills] = useState<any[]>([])
@@ -81,11 +83,14 @@ const ProfileSetup = ({ user, onComplete }: ProfileSetupProps) => {
     setLoading(true)
 
     try {
+      const user = await blink.auth.me()
+      if (!user) return
+
       // Create user profile
       const profileId = `profile_${Date.now()}`
       await blink.db.userProfiles.create({
         id: profileId,
-        userId: user.id,
+        user_id: user.id,
         name: formData.name,
         role: formData.role,
         microBio: formData.microBio,
@@ -108,9 +113,9 @@ const ProfileSetup = ({ user, onComplete }: ProfileSetupProps) => {
       for (const skillId of selectedSkills) {
         await blink.db.userSkills.create({
           id: `user_skill_${Date.now()}_${skillId}`,
-          userId: user.id,
-          skillTagId: skillId,
-          proficiencyLevel: 3 // Default to intermediate
+          user_id: user.id,
+          skill_tag_id: skillId,
+          proficiency_level: 3 // Default to intermediate
         })
       }
 
@@ -126,8 +131,8 @@ const ProfileSetup = ({ user, onComplete }: ProfileSetupProps) => {
       for (const badgeId of badgesToAssign) {
         await blink.db.userBadges.create({
           id: `user_badge_${Date.now()}_${badgeId}`,
-          userId: user.id,
-          badgeId: badgeId
+          user_id: user.id,
+          badge_id: badgeId
         })
       }
 
@@ -317,5 +322,3 @@ const ProfileSetup = ({ user, onComplete }: ProfileSetupProps) => {
     </div>
   )
 }
-
-export default ProfileSetup

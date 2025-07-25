@@ -1,17 +1,13 @@
 import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Input } from '@/components/ui/input'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
+import { Badge } from '../components/ui/badge'
+import { Button } from '../components/ui/button'
+import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
+import { Input } from '../components/ui/input'
 import { Building2, Users, Plus, Search, TrendingUp } from 'lucide-react'
-import blink from '@/blink/client'
+import { blink } from '../blink/client'
 
-interface CommunityGroupsProps {
-  user: any
-}
-
-const CommunityGroups = ({ user }: CommunityGroupsProps) => {
+export function CommunityGroups() {
   const [groups, setGroups] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
@@ -217,5 +213,3 @@ const CommunityGroups = ({ user }: CommunityGroupsProps) => {
     </div>
   )
 }
-
-export default CommunityGroups
