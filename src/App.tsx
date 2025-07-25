@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Toaster } from '@/components/ui/toaster'
+import { GlassCard } from '@/components/ui/glass-card'
 import blink from '@/blink/client'
 import Dashboard from '@/pages/Dashboard'
 import ProfileSetup from '@/pages/ProfileSetup'
@@ -56,17 +58,42 @@ function App() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Welcome to SkillBridge</h1>
-          <p className="text-lg text-gray-600 mb-8">Connect, learn, and grow with your colleagues</p>
-          <button
-            onClick={() => blink.auth.login()}
-            className="bg-indigo-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
-          >
-            Sign In to Get Started
-          </button>
-        </div>
+      <div className="min-h-screen bg-gradient-to-br from-sky-mist via-white to-purple-50 flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+        >
+          <GlassCard className="p-12 text-center max-w-md mx-auto">
+            <motion.h1 
+              className="text-4xl font-semibold text-slate-navy mb-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              Welcome to SkillBridge
+            </motion.h1>
+            <motion.p 
+              className="text-lg text-slate-navy/70 mb-8 font-light"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+            >
+              Connect, learn, and grow with your colleagues
+            </motion.p>
+            <motion.button
+              onClick={() => blink.auth.login()}
+              className="glass-button px-8 py-3 rounded-xl font-medium text-electric-indigo border-electric-indigo hover:bg-electric-indigo hover:text-white transition-all duration-300"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.6 }}
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Sign In to Get Started
+            </motion.button>
+          </GlassCard>
+        </motion.div>
       </div>
     )
   }
@@ -89,7 +116,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-sky-mist via-white to-purple-50">
       <Navigation 
         currentPage={currentPage} 
         onPageChange={setCurrentPage}
@@ -97,7 +124,17 @@ function App() {
         userProfile={userProfile}
       />
       <main className="pt-16">
-        {renderPage()}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentPage}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+          >
+            {renderPage()}
+          </motion.div>
+        </AnimatePresence>
       </main>
       <Toaster />
     </div>

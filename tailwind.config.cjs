@@ -79,37 +79,68 @@ module.exports = {
   				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
-  			}
+  			},
+  			// Custom Electric Indigo Theme Colors
+  			'electric-indigo': '#5C33F6',
+  			'sky-mist': '#F4F8FB',
+  			'slate-navy': '#1E2D4F',
   		},
   		fontFamily: {
   			sans: [
-  				'Inter var',
+  				'Inter',
   				'sans-serif'
   			]
   		},
+  		fontWeight: {
+  			light: '300',
+  			normal: '400',
+  			medium: '500',
+  			semibold: '600',
+  			bold: '700',
+  		},
   		animation: {
-  			'fade-in': 'fade-in 0.5s ease-out',
-  			'slide-up': 'slide-up 0.5s ease-out',
+  			'fade-in': 'fade-in 0.6s ease-out forwards',
+  			'slide-up': 'slide-up 0.5s ease-out forwards',
+  			'bounce-in': 'bounce-in 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards',
   			'accordion-down': 'accordion-down 0.2s ease-out',
   			'accordion-up': 'accordion-up 0.2s ease-out'
   		},
   		keyframes: {
   			'fade-in': {
   				'0%': {
-  					opacity: '0'
+  					opacity: '0',
+  					transform: 'translateY(20px)'
   				},
   				'100%': {
-  					opacity: '1'
+  					opacity: '1',
+  					transform: 'translateY(0)'
   				}
   			},
   			'slide-up': {
   				'0%': {
-  					transform: 'translateY(10px)',
-  					opacity: '0'
+  					opacity: '0',
+  					transform: 'translateY(30px)'
   				},
   				'100%': {
-  					transform: 'translateY(0)',
-  					opacity: '1'
+  					opacity: '1',
+  					transform: 'translateY(0)'
+  				}
+  			},
+  			'bounce-in': {
+  				'0%': {
+  					opacity: '0',
+  					transform: 'scale(0.3)'
+  				},
+  				'50%': {
+  					opacity: '1',
+  					transform: 'scale(1.05)'
+  				},
+  				'70%': {
+  					transform: 'scale(0.9)'
+  				},
+  				'100%': {
+  					opacity: '1',
+  					transform: 'scale(1)'
   				}
   			},
   			'accordion-down': {
@@ -133,7 +164,10 @@ module.exports = {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
-  		}
+  		},
+  		backdropBlur: {
+  			xs: '2px',
+  		},
   	}
   },
   plugins: [require("tailwindcss-animate")],

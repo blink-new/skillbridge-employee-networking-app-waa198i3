@@ -1,86 +1,212 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    --background: 0 0% 98%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 238 75% 65%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 43 96% 56%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 238 75% 65%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 238 75% 65%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 238 75% 65%;
+:root {
+  /* Updated Color Palette - Electric Indigo Theme */
+  --primary: 236 51% 59%; /* #5C33F6 - Electric Indigo */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 210 40% 98%; /* #F4F8FB - Sky Mist White */
+  --secondary-foreground: 222 84% 4.9%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 16% 47%;
+  --accent: 210 40% 94%;
+  --accent-foreground: 222 47% 11%; /* #1E2D4F - Slate Navy */
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --ring: 236 51% 59%; /* Electric Indigo */
+  --background: 210 40% 98%; /* Sky Mist White */
+  --foreground: 222 47% 11%; /* Slate Navy */
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --primary: 236 51% 59%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 217 33% 17%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217 33% 17%;
+  --muted-foreground: 215 20% 65%;
+  --accent: 217 33% 17%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 63% 31%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 217 33% 17%;
+  --input: 217 33% 17%;
+  --ring: 236 51% 59%;
+  --background: 222 84% 4.9%;
+  --foreground: 210 40% 98%;
+  --card: 222 84% 4.9%;
+  --card-foreground: 210 40% 98%;
+  --popover: 222 84% 4.9%;
+  --popover-foreground: 210 40% 98%;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: Inter, sans-serif;
+  font-weight: 400;
+}
+
+/* Glassmorphism Utilities */
+.glass-card {
+  background: rgb(255 255 255 / 15%);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgb(255 255 255 / 30%);
+  box-shadow: 0 4px 30px rgb(0 0 0 / 10%);
+  border-radius: 20px;
+}
+
+.glass-modal {
+  background: rgb(255 255 255 / 25%);
+  backdrop-filter: blur(25px);
+  border: 1px solid rgb(255 255 255 / 40%);
+  box-shadow: 0 8px 40px rgb(0 0 0 / 15%);
+  border-radius: 24px;
+}
+
+.glass-badge {
+  background: rgb(92 51 246 / 15%);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgb(92 51 246 / 30%);
+  box-shadow: 0 2px 20px rgb(92 51 246 / 10%);
+  border-radius: 16px;
+}
+
+.glass-button {
+  background: rgb(92 51 246 / 10%);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgb(92 51 246 / 20%);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-button:hover {
+  background: rgb(92 51 246 / 20%);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 25px rgb(92 51 246 / 20%);
+}
+
+/* Typography Classes */
+.text-heading {
+  font-weight: 600;
+  color: hsl(var(--accent-foreground));
+}
+
+.text-body {
+  font-weight: 400;
+  color: hsl(var(--foreground));
+}
+
+.text-descriptor {
+  font-weight: 300;
+  color: hsl(var(--muted-foreground));
+}
+
+/* Animation Classes */
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.5s ease-out forwards;
+}
+
+.animate-bounce-in {
+  animation: bounce-in 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+.hover-lift {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 35px rgb(0 0 0 / 15%);
+}
+
+/* Keyframes */
+@keyframes fade-in {
+  from {
+    opacity: 0%;
+    transform: translateY(20px);
   }
-  
-  .dark {
-    --background: 15 23% 11%;
-    --foreground: 0 0% 98%;
-    --card: 15 23% 11%;
-    --card-foreground: 0 0% 98%;
-    --popover: 15 23% 11%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 238 75% 65%;
-    --primary-foreground: 15 23% 11%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 43 96% 56%;
-    --accent-foreground: 15 23% 11%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 238 75% 65%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --sidebar-background: 15 23% 11%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 238 75% 65%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 238 75% 65%;
+
+  to {
+    opacity: 100%;
+    transform: translateY(0);
   }
 }
 
-@layer base {
-  * {
-    @apply border-border;
+@keyframes slide-up {
+  from {
+    opacity: 0%;
+    transform: translateY(30px);
   }
 
-  body {
-    @apply bg-background text-foreground;
+  to {
+    opacity: 100%;
+    transform: translateY(0);
   }
+}
+
+@keyframes bounce-in {
+  0% {
+    opacity: 0%;
+    transform: scale(0.3);
+  }
+
+  50% {
+    opacity: 100%;
+    transform: scale(1.05);
+  }
+
+  70% {
+    transform: scale(0.9);
+  }
+
+  100% {
+    opacity: 100%;
+    transform: scale(1);
+  }
+}
+
+/* Gradient Backgrounds */
+.gradient-primary {
+  background: linear-gradient(135deg, #5C33F6 0%, #7C3AED 100%);
+}
+
+.gradient-secondary {
+  background: linear-gradient(135deg, #F4F8FB 0%, #E0E7FF 100%);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgb(255 255 255 / 10%);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(92 51 246 / 30%);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(92 51 246 / 50%);
 }

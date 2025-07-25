@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { motion } from 'framer-motion'
+import { GlassCard } from '@/components/ui/glass-card'
 import { Badge } from '@/components/ui/badge'
 import { Flame, Calendar, Trophy } from 'lucide-react'
 import { blink } from '@/blink/client'
@@ -117,14 +118,12 @@ export function StreakCounter() {
 
   if (loading) {
     return (
-      <Card className="w-full">
-        <CardContent className="p-6">
-          <div className="animate-pulse space-y-4">
-            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-            <div className="h-8 bg-gray-200 rounded w-1/3"></div>
-          </div>
-        </CardContent>
-      </Card>
+      <GlassCard className="w-full p-6">
+        <div className="animate-pulse space-y-4">
+          <div className="h-4 bg-white/30 rounded w-1/2"></div>
+          <div className="h-8 bg-white/30 rounded w-1/3"></div>
+        </div>
+      </GlassCard>
     )
   }
 
@@ -134,7 +133,7 @@ export function StreakCounter() {
     if (streak >= 30) return 'text-purple-600'
     if (streak >= 14) return 'text-orange-600'
     if (streak >= 7) return 'text-red-600'
-    return 'text-gray-600'
+    return 'text-slate-navy'
   }
 
   const getStreakEmoji = (streak: number) => {
@@ -145,60 +144,89 @@ export function StreakCounter() {
   }
 
   return (
-    <Card className="w-full bg-gradient-to-br from-orange-50 to-red-50 border-orange-200">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <Flame className="h-5 w-5 text-orange-600" />
-          Connection Streak
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <GlassCard className="w-full p-6 bg-gradient-to-br from-orange-100/20 to-red-100/20">
+      <div className="flex items-center gap-2 mb-4">
+        <Flame className="h-5 w-5 text-orange-600" />
+        <h3 className="text-lg font-semibold text-slate-navy">Connection Streak</h3>
+      </div>
+      
+      <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <div className="text-center">
-            <div className={`text-3xl font-bold ${getStreakColor(streakData.currentStreak)}`}>
+          <motion.div 
+            className="text-center"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <motion.div 
+              className={`text-3xl font-bold ${getStreakColor(streakData.currentStreak)}`}
+              animate={{ scale: [1, 1.1, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
               {streakData.currentStreak}
-            </div>
-            <div className="text-sm text-gray-600">Current Streak</div>
+            </motion.div>
+            <div className="text-sm text-slate-navy/70">Current Streak</div>
             <div className="text-lg">{getStreakEmoji(streakData.currentStreak)}</div>
-          </div>
+          </motion.div>
           
-          <div className="text-center">
+          <motion.div 
+            className="text-center"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
             <div className="text-2xl font-semibold text-purple-600">
               {streakData.bestStreak}
             </div>
-            <div className="text-sm text-gray-600">Best Streak</div>
+            <div className="text-sm text-slate-navy/70">Best Streak</div>
             <Trophy className="h-5 w-5 text-purple-600 mx-auto mt-1" />
-          </div>
+          </motion.div>
         </div>
 
         {streakData.daysUntilStreakBreak > 0 && streakData.currentStreak > 0 && (
-          <div className="bg-white rounded-lg p-3 border border-orange-200">
+          <motion.div 
+            className="glass-card p-3"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
             <div className="flex items-center gap-2 text-sm">
               <Calendar className="h-4 w-4 text-orange-600" />
-              <span className="text-gray-700">
+              <span className="text-slate-navy">
                 {streakData.daysUntilStreakBreak} days left to maintain streak
               </span>
             </div>
-          </div>
+          </motion.div>
         )}
 
         {streakData.currentStreak === 0 && (
-          <div className="text-center">
-            <p className="text-sm text-gray-600 mb-2">
+          <motion.div 
+            className="text-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <p className="text-sm text-slate-navy/70 mb-2">
               Make a new connection to start your streak!
             </p>
-            <Badge variant="outline" className="text-orange-600 border-orange-600">
+            <Badge variant="outline" className="text-orange-600 border-orange-600 glass-badge">
               Connect within 7 days to maintain
             </Badge>
-          </div>
+          </motion.div>
         )}
 
         {streakData.currentStreak >= 7 && (
-          <Badge className="w-full justify-center bg-orange-600 hover:bg-orange-700">
-            🔥 Streak Master! Keep it going!
-          </Badge>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Badge className="w-full justify-center bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white">
+              🔥 Streak Master! Keep it going!
+            </Badge>
+          </motion.div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </GlassCard>
   )
 }

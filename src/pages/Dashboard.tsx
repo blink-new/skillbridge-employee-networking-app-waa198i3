@@ -1,9 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
+import { motion } from 'framer-motion'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Progress } from '@/components/ui/progress'
+import { GlassCard } from '@/components/ui/glass-card'
+import { AnimatedPage } from '@/components/ui/animated-page'
 import blink from '@/blink/client'
 import { 
   Users, 
@@ -126,268 +129,334 @@ const Dashboard = ({ user, userProfile }: DashboardProps) => {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="animate-pulse space-y-6">
-          <div className="h-8 bg-gray-200 rounded w-1/3"></div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="h-32 bg-gray-200 rounded"></div>
-            ))}
+      <div className="min-h-screen bg-gradient-to-br from-sky-mist via-white to-purple-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="animate-pulse space-y-6">
+            <div className="h-8 bg-white/30 rounded-2xl w-1/3 backdrop-blur-sm"></div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="h-32 bg-white/20 rounded-2xl backdrop-blur-sm"></div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
     )
   }
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  }
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5, ease: "easeOut" }
+    }
+  }
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Welcome Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Welcome back, {userProfile?.name || 'there'}! 👋
-        </h1>
-        <p className="text-lg text-gray-600">
-          Here's what's happening in your professional network
-        </p>
-      </div>
+    <AnimatedPage className="min-h-screen bg-gradient-to-br from-sky-mist via-white to-purple-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Welcome Header */}
+        <motion.div 
+          className="mb-8"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <h1 className="text-4xl font-semibold text-slate-navy mb-2">
+            Welcome back, {userProfile?.name || 'there'}! 👋
+          </h1>
+          <p className="text-lg text-slate-navy/70 font-light">
+            Here's what's happening in your professional network
+          </p>
+        </motion.div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Connections</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.connections}</div>
-            <p className="text-xs text-muted-foreground">
-              +2 from last week
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Badges Earned</CardTitle>
-            <Award className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.badges}</div>
-            <p className="text-xs text-muted-foreground">
-              Keep building your reputation
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Profile Strength</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.profileCompletion}%</div>
-            <Progress value={stats.profileCompletion} className="mt-2" />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total XP</CardTitle>
-            <Sparkles className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{userProfile?.totalPoints || 0}</div>
-            <p className="text-xs text-muted-foreground">
-              Earn more through activities
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Gamification Section */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">🎮 Gamification Hub</h2>
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          <StreakCounter 
-            streak={userProfile?.connectionStreak || 0}
-            lastConnectionDate={userProfile?.lastConnectionDate}
-          />
-          <QRMeetup 
-            userProfile={userProfile}
-            onPointsEarned={refreshPoints}
-          />
-          <SkillSwap 
-            userProfile={userProfile}
-            onPointsEarned={refreshPoints}
-          />
-          <ConversationStarters 
-            userProfile={userProfile}
-            onPointsEarned={refreshPoints}
-          />
-          <div className="lg:col-span-2 xl:col-span-1">
-            <MonthlyGroups userProfile={userProfile} />
-          </div>
-        </div>
-      </div>
-
-      {/* Team Leaderboard */}
-      <div className="mb-8">
-        <TeamLeaderboard userProfile={userProfile} />
-      </div>
-
-      {/* AI-Powered Features */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">🤖 AI-Powered Networking</h2>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <MatchingSuggestions />
-          <NotificationCenter />
-        </div>
-        <LearningSessions />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Your Badges */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Sparkles className="h-5 w-5 mr-2 text-amber-500" />
-              Your Badges
-            </CardTitle>
-            <CardDescription>
-              Achievements that showcase your expertise
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {userBadges.length > 0 ? (
-              <div className="grid grid-cols-2 gap-3">
-                {userBadges.map((badge) => (
-                  <div
-                    key={badge.id}
-                    className="flex items-center p-3 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg border border-amber-200"
-                  >
-                    <span className="text-2xl mr-3">{badge.iconEmoji}</span>
-                    <div>
-                      <p className="font-medium text-sm">{badge.badgeName}</p>
-                      <p className="text-xs text-gray-600">{badge.description}</p>
-                    </div>
-                  </div>
-                ))}
+        {/* Stats Cards */}
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <motion.div variants={itemVariants}>
+            <GlassCard hover className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-medium text-slate-navy/80">Connections</h3>
+                <Users className="h-5 w-5 text-electric-indigo" />
               </div>
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                <Award className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                <p>No badges yet. Start connecting to earn your first badge!</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              <div className="text-3xl font-semibold text-slate-navy mb-1">{stats.connections}</div>
+              <p className="text-xs text-slate-navy/60">+2 from last week</p>
+            </GlassCard>
+          </motion.div>
 
-        {/* Suggested Connections */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Target className="h-5 w-5 mr-2 text-indigo-500" />
-              Suggested Connections
-            </CardTitle>
-            <CardDescription>
-              People you might want to connect with
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {suggestedConnections.length > 0 ? (
-              <div className="space-y-4">
-                {suggestedConnections.map((profile) => (
-                  <div key={profile.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <Avatar>
-                        <AvatarFallback>
-                          {profile.name?.charAt(0).toUpperCase() || 'U'}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium">{profile.name}</p>
-                        <p className="text-sm text-gray-600">{profile.role}</p>
-                      </div>
-                    </div>
-                    <Button size="sm" variant="outline">
-                      Connect
-                    </Button>
-                  </div>
-                ))}
-                <Button variant="ghost" className="w-full">
-                  View All Suggestions
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </Button>
+          <motion.div variants={itemVariants}>
+            <GlassCard hover className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-medium text-slate-navy/80">Badges Earned</h3>
+                <Award className="h-5 w-5 text-amber-500" />
               </div>
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                <Users className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                <p>No suggestions available yet. Complete your profile to get better matches!</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              <div className="text-3xl font-semibold text-slate-navy mb-1">{stats.badges}</div>
+              <p className="text-xs text-slate-navy/60">Keep building your reputation</p>
+            </GlassCard>
+          </motion.div>
 
-        {/* Quick Actions */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <BookOpen className="h-5 w-5 mr-2 text-green-500" />
-              Quick Actions
-            </CardTitle>
-            <CardDescription>
-              Things you can do right now
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <Button variant="outline" className="w-full justify-start">
-                <MessageCircle className="h-4 w-4 mr-2" />
-                Update your learning goals
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Users className="h-4 w-4 mr-2" />
-                Browse colleagues by skill
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Award className="h-4 w-4 mr-2" />
-                Join a community group
-              </Button>
+          <motion.div variants={itemVariants}>
+            <GlassCard hover className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-medium text-slate-navy/80">Profile Strength</h3>
+                <TrendingUp className="h-5 w-5 text-green-500" />
+              </div>
+              <div className="text-3xl font-semibold text-slate-navy mb-2">{stats.profileCompletion}%</div>
+              <div className="w-full bg-white/30 rounded-full h-2">
+                <motion.div 
+                  className="bg-gradient-to-r from-electric-indigo to-purple-500 h-2 rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${stats.profileCompletion}%` }}
+                  transition={{ duration: 1, delay: 0.5 }}
+                />
+              </div>
+            </GlassCard>
+          </motion.div>
+
+          <motion.div variants={itemVariants}>
+            <GlassCard hover className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-medium text-slate-navy/80">Total XP</h3>
+                <Sparkles className="h-5 w-5 text-yellow-500" />
+              </div>
+              <div className="text-3xl font-semibold text-slate-navy mb-1">{userProfile?.totalPoints || 0}</div>
+              <p className="text-xs text-slate-navy/60">Earn more through activities</p>
+            </GlassCard>
+          </motion.div>
+        </motion.div>
+
+        {/* Gamification Section */}
+        <motion.div 
+          className="mb-8"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+        >
+          <h2 className="text-2xl font-semibold text-slate-navy mb-6 flex items-center">
+            🎮 <span className="ml-2">Gamification Hub</span>
+          </h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            <StreakCounter 
+              streak={userProfile?.connectionStreak || 0}
+              lastConnectionDate={userProfile?.lastConnectionDate}
+            />
+            <QRMeetup 
+              userProfile={userProfile}
+              onPointsEarned={refreshPoints}
+            />
+            <SkillSwap 
+              userProfile={userProfile}
+              onPointsEarned={refreshPoints}
+            />
+            <ConversationStarters 
+              userProfile={userProfile}
+              onPointsEarned={refreshPoints}
+            />
+            <div className="lg:col-span-2 xl:col-span-1">
+              <MonthlyGroups userProfile={userProfile} />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </motion.div>
 
-        {/* Recent Activity */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>
-              What's been happening in your network
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-indigo-500 rounded-full mt-2"></div>
+        {/* Team Leaderboard */}
+        <motion.div 
+          className="mb-8"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
+          <TeamLeaderboard userProfile={userProfile} />
+        </motion.div>
+
+        {/* AI-Powered Features */}
+        <motion.div 
+          className="mb-8"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+        >
+          <h2 className="text-2xl font-semibold text-slate-navy mb-6 flex items-center">
+            🤖 <span className="ml-2">AI-Powered Networking</span>
+          </h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <MatchingSuggestions />
+            <NotificationCenter />
+          </div>
+          <LearningSessions />
+        </motion.div>
+
+        <motion.div 
+          className="grid grid-cols-1 lg:grid-cols-2 gap-8"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          {/* Your Badges */}
+          <motion.div variants={itemVariants}>
+            <GlassCard className="p-6">
+              <div className="flex items-center mb-4">
+                <Sparkles className="h-6 w-6 mr-3 text-amber-500" />
                 <div>
-                  <p className="text-sm">You joined SkillBridge!</p>
-                  <p className="text-xs text-gray-500">Welcome to the community</p>
+                  <h3 className="text-lg font-semibold text-slate-navy">Your Badges</h3>
+                  <p className="text-sm text-slate-navy/70">Achievements that showcase your expertise</p>
                 </div>
               </div>
-              {stats.badges > 0 && (
-                <div className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-amber-500 rounded-full mt-2"></div>
-                  <div>
-                    <p className="text-sm">Earned your first badge</p>
-                    <p className="text-xs text-gray-500">Keep up the great work!</p>
-                  </div>
+              {userBadges.length > 0 ? (
+                <div className="grid grid-cols-2 gap-3">
+                  {userBadges.map((badge, index) => (
+                    <motion.div
+                      key={badge.id}
+                      className="glass-badge p-3"
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.3, delay: index * 0.1 }}
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <span className="text-2xl mb-2 block">{badge.iconEmoji}</span>
+                      <p className="font-medium text-sm text-slate-navy">{badge.badgeName}</p>
+                      <p className="text-xs text-slate-navy/70">{badge.description}</p>
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-slate-navy/60">
+                  <Award className="h-12 w-12 mx-auto mb-4 text-slate-navy/30" />
+                  <p>No badges yet. Start connecting to earn your first badge!</p>
                 </div>
               )}
-            </div>
-          </CardContent>
-        </Card>
+            </GlassCard>
+          </motion.div>
+
+          {/* Suggested Connections */}
+          <motion.div variants={itemVariants}>
+            <GlassCard className="p-6">
+              <div className="flex items-center mb-4">
+                <Target className="h-6 w-6 mr-3 text-electric-indigo" />
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-navy">Suggested Connections</h3>
+                  <p className="text-sm text-slate-navy/70">People you might want to connect with</p>
+                </div>
+              </div>
+              {suggestedConnections.length > 0 ? (
+                <div className="space-y-4">
+                  {suggestedConnections.map((profile, index) => (
+                    <motion.div 
+                      key={profile.id} 
+                      className="flex items-center justify-between p-3 bg-white/20 rounded-xl backdrop-blur-sm"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.3, delay: index * 0.1 }}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <Avatar>
+                          <AvatarFallback className="bg-electric-indigo text-white">
+                            {profile.name?.charAt(0).toUpperCase() || 'U'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium text-slate-navy">{profile.name}</p>
+                          <p className="text-sm text-slate-navy/70">{profile.role}</p>
+                        </div>
+                      </div>
+                      <Button size="sm" className="glass-button border-electric-indigo text-electric-indigo hover:bg-electric-indigo hover:text-white">
+                        Connect
+                      </Button>
+                    </motion.div>
+                  ))}
+                  <Button variant="ghost" className="w-full text-electric-indigo hover:bg-electric-indigo/10">
+                    View All Suggestions
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-slate-navy/60">
+                  <Users className="h-12 w-12 mx-auto mb-4 text-slate-navy/30" />
+                  <p>No suggestions available yet. Complete your profile to get better matches!</p>
+                </div>
+              )}
+            </GlassCard>
+          </motion.div>
+
+          {/* Quick Actions */}
+          <motion.div variants={itemVariants}>
+            <GlassCard className="p-6">
+              <div className="flex items-center mb-4">
+                <BookOpen className="h-6 w-6 mr-3 text-green-500" />
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-navy">Quick Actions</h3>
+                  <p className="text-sm text-slate-navy/70">Things you can do right now</p>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <Button variant="ghost" className="w-full justify-start glass-button">
+                  <MessageCircle className="h-4 w-4 mr-2" />
+                  Update your learning goals
+                </Button>
+                <Button variant="ghost" className="w-full justify-start glass-button">
+                  <Users className="h-4 w-4 mr-2" />
+                  Browse colleagues by skill
+                </Button>
+                <Button variant="ghost" className="w-full justify-start glass-button">
+                  <Award className="h-4 w-4 mr-2" />
+                  Join a community group
+                </Button>
+              </div>
+            </GlassCard>
+          </motion.div>
+
+          {/* Recent Activity */}
+          <motion.div variants={itemVariants}>
+            <GlassCard className="p-6">
+              <h3 className="text-lg font-semibold text-slate-navy mb-2">Recent Activity</h3>
+              <p className="text-sm text-slate-navy/70 mb-4">What's been happening in your network</p>
+              <div className="space-y-4">
+                <motion.div 
+                  className="flex items-start space-x-3"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className="w-2 h-2 bg-electric-indigo rounded-full mt-2"></div>
+                  <div>
+                    <p className="text-sm text-slate-navy">You joined SkillBridge!</p>
+                    <p className="text-xs text-slate-navy/60">Welcome to the community</p>
+                  </div>
+                </motion.div>
+                {stats.badges > 0 && (
+                  <motion.div 
+                    className="flex items-start space-x-3"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, delay: 0.1 }}
+                  >
+                    <div className="w-2 h-2 bg-amber-500 rounded-full mt-2"></div>
+                    <div>
+                      <p className="text-sm text-slate-navy">Earned your first badge</p>
+                      <p className="text-xs text-slate-navy/60">Keep up the great work!</p>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+            </GlassCard>
+          </motion.div>
+        </motion.div>
       </div>
-    </div>
+    </AnimatedPage>
   )
 }
 
