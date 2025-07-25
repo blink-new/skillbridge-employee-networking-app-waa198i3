@@ -49,7 +49,7 @@ export function Dashboard() {
 
       // Load user profile
       const profiles = await blink.db.userProfiles.list({
-        where: { user_id: currentUser.id },
+        where: { userId: currentUser.id },
         limit: 1
       })
       
@@ -60,22 +60,22 @@ export function Dashboard() {
       const connections = await blink.db.connections.list({
         where: {
           OR: [
-            { requester_id: currentUser.id, status: 'accepted' },
-            { target_id: currentUser.id, status: 'accepted' }
+            { requesterId: currentUser.id, status: 'accepted' },
+            { targetId: currentUser.id, status: 'accepted' }
           ]
         }
       })
 
       // Load user badges
       const badges = await blink.db.userBadges.list({
-        where: { user_id: currentUser.id }
+        where: { userId: currentUser.id }
       })
 
       // Load badge details
       const badgeDetails = []
       for (const userBadge of badges) {
         const badge = await blink.db.badges.list({
-          where: { id: userBadge.badge_id },
+          where: { id: userBadge.badgeId },
           limit: 1
         })
         if (badge.length > 0) {
@@ -101,7 +101,7 @@ export function Dashboard() {
 
       // Load suggested connections (simplified for now)
       const allProfiles = await blink.db.userProfiles.list({
-        where: { NOT: { user_id: currentUser.id } },
+        where: { NOT: { userId: currentUser.id } },
         limit: 3
       })
       setSuggestedConnections(allProfiles)
@@ -364,8 +364,8 @@ export function Dashboard() {
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="font-medium text-slate-navy">{profile.name}</p>
-                          <p className="text-sm text-slate-navy/70">{profile.role}</p>
+                          <p className="font-medium text-slate-navy">{profile.name || 'Unknown'}</p>
+                          <p className="text-sm text-slate-navy/70">{profile.role || profile.user_role || 'No role specified'}</p>
                         </div>
                       </div>
                       <Button size="sm" className="glass-button border-electric-indigo text-electric-indigo hover:bg-electric-indigo hover:text-white">

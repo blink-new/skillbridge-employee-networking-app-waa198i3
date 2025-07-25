@@ -93,20 +93,20 @@ export function ProfileSetup({ onComplete }: ProfileSetupProps) {
         user_id: user.id,
         name: formData.name,
         role: formData.role,
-        microBio: formData.microBio,
-        workingStyle: JSON.stringify(formData.workingStyle),
-        skillGap: formData.skillGap,
-        learningNow: formData.learningNow,
+        micro_bio: formData.microBio,
+        working_style: JSON.stringify(formData.workingStyle),
+        skill_gap: formData.skillGap,
+        learning_now: formData.learningNow,
         superpower: formData.superpower,
-        proudProject: formData.proudProject,
-        teach15Min: formData.teach15Min,
-        playlistLink: formData.playlistLink,
-        askMeAbout: formData.askMeAbout,
+        proud_project: formData.proudProject,
+        teach_15_min: formData.teach15Min,
+        playlist_link: formData.playlistLink,
+        ask_me_about: formData.askMeAbout,
         prediction: formData.prediction,
-        favoriteTools: formData.favoriteTools,
-        deptShadow: formData.deptShadow,
-        profileVisibility: true,
-        connectionCount: 0
+        favorite_tools: formData.favoriteTools,
+        dept_shadow: formData.deptShadow,
+        profile_visibility: true,
+        connection_count: 0
       })
 
       // Add selected skills

@@ -252,7 +252,7 @@ export function QRMeetup({ userId }: QRMeetupProps) {
               <div className="space-y-4">
                 <div className="text-center">
                   <h3 className="font-semibold">{scannedUser.name}</h3>
-                  <p className="text-sm text-gray-600">{scannedUser.role}</p>
+                  <p className="text-sm text-gray-600">{scannedUser.role || scannedUser.user_role || 'No role specified'}</p>
                 </div>
                 
                 <div>

@@ -48,7 +48,7 @@ export function MyProfile() {
 
       // Load user profile
       const profiles = await blink.db.userProfiles.list({
-        where: { user_id: user.id },
+        where: { userId: user.id },
         limit: 1
       })
 
@@ -58,13 +58,13 @@ export function MyProfile() {
 
       // Load user badges
       const userBadges = await blink.db.userBadges.list({
-        where: { user_id: user.id }
+        where: { userId: user.id }
       })
 
       const badgeDetails = await Promise.all(
         userBadges.map(async (ub) => {
           const badge = await blink.db.badges.list({
-            where: { id: ub.badge_id },
+            where: { id: ub.badgeId },
             limit: 1
           })
           return badge[0]
@@ -151,8 +151,8 @@ export function MyProfile() {
                   </Button>
                 </div>
                 <div className="flex-1">
-                  <h2 className="text-2xl font-bold text-slate-navy">{profile.name}</h2>
-                  <p className="text-lg text-muted-foreground mb-2">{profile.role}</p>
+                  <h2 className="text-2xl font-bold text-slate-navy">{profile.name || 'Unknown User'}</h2>
+                  <p className="text-lg text-muted-foreground mb-2">{profile.role || profile.user_role || 'No role specified'}</p>
                   <p className="text-slate-navy mb-4">{profile.micro_bio}</p>
                   <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                     <div className="flex items-center">

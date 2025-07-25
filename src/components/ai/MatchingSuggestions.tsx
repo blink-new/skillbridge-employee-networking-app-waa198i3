@@ -8,9 +8,9 @@ import { blink } from '@/blink/client';
 
 interface MatchSuggestion {
   id: string;
-  suggested_user_id: string;
-  match_score: number;
-  match_reasons: string[];
+  suggestedUserId: string;
+  matchScore: number;
+  matchReasons: string[];
   status: string;
   user_name?: string;
   user_role?: string;
@@ -27,12 +27,12 @@ export function MatchingSuggestions() {
       const user = await blink.auth.me();
       
       // Get match suggestions for current user
-      const matchData = await blink.db.match_suggestions.list({
+      const matchData = await blink.db.matchSuggestions.list({
         where: { 
-          user_id: user.id,
+          userId: user.id,
           status: 'pending'
         },
-        orderBy: { match_score: 'desc' },
+        orderBy: { matchScore: 'desc' },
         limit: 5
       });
 
@@ -40,8 +40,8 @@ export function MatchingSuggestions() {
       const enrichedSuggestions = await Promise.all(
         matchData.map(async (match) => {
           try {
-            const profiles = await blink.db.user_profiles.list({
-              where: { user_id: match.suggested_user_id }
+            const profiles = await blink.db.userProfiles.list({
+              where: { userId: match.suggestedUserId }
             });
             
             if (profiles.length > 0) {
@@ -50,7 +50,7 @@ export function MatchingSuggestions() {
               const badgeIds = profile.badges ? JSON.parse(profile.badges) : [];
               
               // Get skill names
-              const skills = skillIds.length > 0 ? await blink.db.skill_tags.list({
+              const skills = skillIds.length > 0 ? await blink.db.skillTags.list({
                 where: { id: { in: skillIds } }
               }) : [];
               
@@ -62,10 +62,10 @@ export function MatchingSuggestions() {
               return {
                 ...match,
                 user_name: profile.name,
-                user_role: profile.role,
+                user_role: profile.role || profile.user_role,
                 user_skills: skills.map(s => s.name),
-                user_badges: badges.map(b => b.badge_name),
-                match_reasons: match.match_reasons ? JSON.parse(match.match_reasons) : []
+                user_badges: badges.map(b => b.badgeName),
+                match_reasons: match.matchReasons ? JSON.parse(match.matchReasons) : []
               };
             }
             return match;
@@ -94,8 +94,8 @@ export function MatchingSuggestions() {
       const user = await blink.auth.me();
       
       // Get current user's profile
-      const userProfiles = await blink.db.user_profiles.list({
-        where: { user_id: user.id }
+      const userProfiles = await blink.db.userProfiles.list({
+        where: { userId: user.id }
       });
       
       if (userProfiles.length === 0) return;
@@ -105,8 +105,8 @@ export function MatchingSuggestions() {
       const currentWorkingStyle = currentProfile.working_style ? JSON.parse(currentProfile.working_style) : [];
       
       // Get all other users
-      const allProfiles = await blink.db.user_profiles.list({
-        where: { user_id: { neq: user.id } }
+      const allProfiles = await blink.db.userProfiles.list({
+        where: { userId: { neq: user.id } }
       });
       
       // Generate suggestions based on AI matching logic
@@ -155,19 +155,19 @@ export function MatchingSuggestions() {
         
         return {
           id: `match_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          user_id: user.id,
-          suggested_user_id: profile.user_id,
-          match_score: Math.min(score, 100),
-          match_reasons: JSON.stringify(reasons),
+          userId: user.id,
+          suggestedUserId: profile.userId,
+          matchScore: Math.min(score, 100),
+          matchReasons: JSON.stringify(reasons),
           status: 'pending'
         };
-      }).filter(suggestion => suggestion.match_score > 20)
-        .sort((a, b) => b.match_score - a.match_score)
+      }).filter(suggestion => suggestion.matchScore > 20)
+        .sort((a, b) => b.matchScore - a.matchScore)
         .slice(0, 5);
       
       // Save suggestions to database
       if (newSuggestions.length > 0) {
-        await blink.db.match_suggestions.createMany(newSuggestions);
+        await blink.db.matchSuggestions.createMany(newSuggestions);
         await loadSuggestions();
       }
       
@@ -185,25 +185,25 @@ export function MatchingSuggestions() {
       // Create connection request
       await blink.db.connections.create({
         id: `conn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        requester_id: user.id,
-        requested_id: suggestion.suggested_user_id,
+        requesterId: user.id,
+        requestedId: suggestion.suggestedUserId,
         status: 'pending',
-        connection_type: 'skill_match'
+        connectionType: 'skill_match'
       });
       
       // Update suggestion status
-      await blink.db.match_suggestions.update(suggestion.id, {
+      await blink.db.matchSuggestions.update(suggestion.id, {
         status: 'connected'
       });
       
       // Create notification for the other user
       await blink.db.notifications.create({
         id: `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        user_id: suggestion.suggested_user_id,
+        userId: suggestion.suggestedUserId,
         type: 'connection_request',
         title: 'New Connection Request',
         message: `${user.email} wants to connect with you based on skill compatibility!`,
-        data: JSON.stringify({ requester_id: user.id, match_score: suggestion.match_score })
+        data: JSON.stringify({ requesterId: user.id, matchScore: suggestion.matchScore })
       });
       
       // Remove from suggestions
@@ -216,7 +216,7 @@ export function MatchingSuggestions() {
 
   const handleDismiss = async (suggestion: MatchSuggestion) => {
     try {
-      await blink.db.match_suggestions.update(suggestion.id, {
+      await blink.db.matchSuggestions.update(suggestion.id, {
         status: 'dismissed'
       });
       
@@ -285,7 +285,7 @@ export function MatchingSuggestions() {
                       <div className="flex items-center gap-2 mb-1">
                         <h4 className="font-medium">{suggestion.user_name || 'Unknown User'}</h4>
                         <Badge variant="secondary" className="text-xs">
-                          {suggestion.match_score}% match
+                          {suggestion.matchScore}% match
                         </Badge>
                       </div>
                       
@@ -306,11 +306,11 @@ export function MatchingSuggestions() {
                         </div>
                       )}
                       
-                      {suggestion.match_reasons && suggestion.match_reasons.length > 0 && (
+                      {suggestion.matchReasons && suggestion.matchReasons.length > 0 && (
                         <div className="text-xs text-indigo-600 mb-3">
                           <strong>Why you match:</strong>
                           <ul className="list-disc list-inside mt-1">
-                            {suggestion.match_reasons.slice(0, 2).map((reason, index) => (
+                            {suggestion.matchReasons.slice(0, 2).map((reason, index) => (
                               <li key={index}>{reason}</li>
                             ))}
                           </ul>

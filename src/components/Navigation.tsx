@@ -32,7 +32,7 @@ export function Navigation({ currentPage, onPageChange }: NavigationProps) {
           
           // Load user profile
           const profiles = await blink.db.userProfiles.list({
-            where: { user_id: currentUser.id },
+            where: { userId: currentUser.id },
             limit: 1
           })
           
