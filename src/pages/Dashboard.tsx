@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -15,6 +15,12 @@ import {
   Target,
   BookOpen
 } from 'lucide-react'
+import { StreakCounter } from '@/components/gamification/StreakCounter'
+import { QRMeetup } from '@/components/gamification/QRMeetup'
+import { SkillSwap } from '@/components/gamification/SkillSwap'
+import { ConversationStarters } from '@/components/gamification/ConversationStarters'
+import { TeamLeaderboard } from '@/components/gamification/TeamLeaderboard'
+import { MonthlyGroups } from '@/components/gamification/MonthlyGroups'
 
 interface DashboardProps {
   user: any
@@ -32,70 +38,88 @@ const Dashboard = ({ user, userProfile }: DashboardProps) => {
   const [userBadges, setUserBadges] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    const loadDashboardData = async () => {
-      if (!user) return
+  const loadDashboardData = useCallback(async () => {
+    if (!user) return
 
-      try {
-        // Load user connections
-        const connections = await blink.db.connections.list({
-          where: {
-            OR: [
-              { requesterId: user.id, status: 'accepted' },
-              { recipientId: user.id, status: 'accepted' }
-            ]
-          }
-        })
-
-        // Load user badges
-        const badges = await blink.db.userBadges.list({
-          where: { userId: user.id }
-        })
-
-        // Load badge details
-        const badgeDetails = []
-        for (const userBadge of badges) {
-          const badge = await blink.db.badges.list({
-            where: { id: userBadge.badgeId },
-            limit: 1
-          })
-          if (badge.length > 0) {
-            badgeDetails.push(badge[0])
-          }
+    try {
+      // Load user connections
+      const connections = await blink.db.connections.list({
+        where: {
+          OR: [
+            { requesterId: user.id, status: 'accepted' },
+            { recipientId: user.id, status: 'accepted' }
+          ]
         }
+      })
 
-        // Calculate profile completion
-        let completionScore = 0
-        const fields = [
-          userProfile?.name, userProfile?.role, userProfile?.microBio,
-          userProfile?.superpower, userProfile?.learningNow, userProfile?.askMeAbout
-        ]
-        completionScore = (fields.filter(Boolean).length / fields.length) * 100
+      // Load user badges
+      const badges = await blink.db.userBadges.list({
+        where: { userId: user.id }
+      })
 
-        setStats({
-          connections: connections.length,
-          badges: badges.length,
-          profileCompletion: Math.round(completionScore)
+      // Load badge details
+      const badgeDetails = []
+      for (const userBadge of badges) {
+        const badge = await blink.db.badges.list({
+          where: { id: userBadge.badgeId },
+          limit: 1
         })
-
-        setUserBadges(badgeDetails)
-
-        // Load suggested connections (simplified for now)
-        const allProfiles = await blink.db.userProfiles.list({
-          where: { NOT: { userId: user.id } },
-          limit: 3
-        })
-        setSuggestedConnections(allProfiles)
-
-      } catch (error) {
-        console.error('Error loading dashboard data:', error)
-      } finally {
-        setLoading(false)
+        if (badge.length > 0) {
+          badgeDetails.push(badge[0])
+        }
       }
-    }
 
-    loadDashboardData()
+      // Calculate profile completion
+      let completionScore = 0
+      const fields = [
+        userProfile?.name, userProfile?.role, userProfile?.microBio,
+        userProfile?.superpower, userProfile?.learningNow, userProfile?.askMeAbout
+      ]
+      completionScore = (fields.filter(Boolean).length / fields.length) * 100
+
+      setStats({
+        connections: connections.length,
+        badges: badges.length,
+        profileCompletion: Math.round(completionScore)
+      })
+
+      setUserBadges(badgeDetails)
+
+      // Load suggested connections (simplified for now)
+      const allProfiles = await blink.db.userProfiles.list({
+        where: { NOT: { userId: user.id } },
+        limit: 3
+      })
+      setSuggestedConnections(allProfiles)
+
+    } catch (error) {
+      console.error('Error loading dashboard data:', error)
+    } finally {
+      setLoading(false)
+    }
   }, [user, userProfile])
+
+  const refreshPoints = async () => {
+    // Refresh user profile to get updated points
+    if (!user) return
+    try {
+      const updatedProfile = await blink.db.userProfiles.list({
+        where: { id: user.id },
+        limit: 1
+      })
+      if (updatedProfile.length > 0) {
+        // Update the userProfile in parent component would be ideal
+        // For now, we'll just trigger a reload of dashboard data
+        loadDashboardData()
+      }
+    } catch (error) {
+      console.error('Error refreshing points:', error)
+    }
+  }
+
+  useEffect(() => {
+    loadDashboardData()
+  }, [loadDashboardData])
 
   if (loading) {
     return (
@@ -125,7 +149,7 @@ const Dashboard = ({ user, userProfile }: DashboardProps) => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Connections</CardTitle>
@@ -162,6 +186,50 @@ const Dashboard = ({ user, userProfile }: DashboardProps) => {
             <Progress value={stats.profileCompletion} className="mt-2" />
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total XP</CardTitle>
+            <Sparkles className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{userProfile?.totalPoints || 0}</div>
+            <p className="text-xs text-muted-foreground">
+              Earn more through activities
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Gamification Section */}
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">🎮 Gamification Hub</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          <StreakCounter 
+            streak={userProfile?.connectionStreak || 0}
+            lastConnectionDate={userProfile?.lastConnectionDate}
+          />
+          <QRMeetup 
+            userProfile={userProfile}
+            onPointsEarned={refreshPoints}
+          />
+          <SkillSwap 
+            userProfile={userProfile}
+            onPointsEarned={refreshPoints}
+          />
+          <ConversationStarters 
+            userProfile={userProfile}
+            onPointsEarned={refreshPoints}
+          />
+          <div className="lg:col-span-2 xl:col-span-1">
+            <MonthlyGroups userProfile={userProfile} />
+          </div>
+        </div>
+      </div>
+
+      {/* Team Leaderboard */}
+      <div className="mb-8">
+        <TeamLeaderboard userProfile={userProfile} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
